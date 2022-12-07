@@ -40,7 +40,7 @@ then
         exit 1
     fi
 else
-    saved = ""
+    saved=""
 fi
 
 

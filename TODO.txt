@@ -1,16 +1,3 @@
-- Aggiungere main alla libreria CryptoFile per consentire scrittura e lettura dei dati crittografati da un file
-- La verifica delle anomalie dovrà avvenire confrontando i byte catturati con il valore medio di byte catturati durante il profiling in quel giorno della settimana e del mese, ed in quell'ora.
 - Testare gli script già realizzati
-
-Funzionalità del programma ricevente:
-  - Verifica dell'integrità dei moduli tramite l'utilizzo di hash conservati in maniera sicura tramite CryptoFile ed esecuzione degli stessi
-
-Funzionalità dei moduli:
-  - Raccolta dei dati
-  - Profiling e salvataggio sicuro dei dati tramite CryptoFile
-  - Esaminazione dei dati raccolti per capire automaticamente quando si può cominciare ad effettuare l'analisi delle anomalie: dopo aver effettuato profiling su ogni fascia oraria, giorno della settimana e giorno del mese
-  - Analisi delle anomalie tramite l'utilizzo di specifiche funzioni che approssimino la soglia massima di traffico consentita:
-    1. Traffic Analyzer -> soglia_max = 15000*x^(3/5)+x+1000
-    2. Ransomware Catcher -> soglia_max = 50*x^(3/5)+5x
-
-Modifica Traffic Analyzer: cattura dei bytes per ogni interfaccia. Comando: netstat -i | awk '/[0-9]+/ {print $1 ":" $3+$7}'
+- Modificare hashgenerator per rimuovere l'output e fare in modo che acquisisca la password da pipe anonima
+- Rimuovere output da password_asker

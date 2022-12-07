@@ -63,25 +63,31 @@ check_installation() {
     fi
 }
 
-copy_files() {
-    # Copying files
-    mkdir -p /opt/MAST /var/MAST /var/MAST/modules && systemctl link "$(pwd)/mast.service" 2> /dev/null && cp -rf . /opt/MAST && chmod +x /opt/MAST/bin/*
+compile() {
+    # Compiling binaries
+    g++ src/MastCore/mast_core.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp lib/hasher/hasher.cpp -lpthread -lcryptopp -o bin/mast_core
+    check_installation $?
+    g++ src/HashGenerator/hashgenerator.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp lib/hasher/hasher.cpp -lpthread -lcryptopp -o bin/hashgenerator
+    check_installation $?
+    g++ src/CryptoFile/cryptofile.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp -lpthread -lcryptopp -o bin/cryptofile
     check_installation $?
 }
 
-compile() {
-    # Compiling binaries
-    g++ src/MastCore/mast_core.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp lib/hasher/hasher.cpp -lpthread -lcryptopp -o /opt/MAST/bin/mast_core
+copy_files() {
+    # Copying files
+    mkdir -p /opt/MAST /var/MAST /var/MAST/modules && systemctl link ./mast.service 2> /dev/null && cp -rf . /opt/MAST && chmod +x /opt/MAST/bin/*
     check_installation $?
-    g++ src/HashGenerator/hashgenerator.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp lib/hasher/hasher.cpp -lpthread -lcryptopp -o /opt/MAST/bin/hashgenerator
-    check_installation $?
-    g++ src/CryptoFile/cryptofile.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp -lpthread -lcryptopp -o /opt/MAST/bin/cryptofile
-    check_installation $?
+
+    pwd=$(/opt/MAST/bin/password_asker)
+    for module in $(ls "/opt/MAST/modules")
+    do
+        /opt/MAST/bin/hashgenerator "$module" "$pwd"
+    done
 }
 
 check_root
 check_dependencies
-copy_files
 compile
+copy_files
 
 echo "Installation terminated successfully!"

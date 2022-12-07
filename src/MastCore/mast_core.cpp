@@ -3,13 +3,12 @@
 #include <iostream>
 #include <string.h>
 #include <vector>
+#include <stdlib.h>
 #include <sys/wait.h>
 
 using namespace std;
 
 int main(){
-
-    string pwd;
     int fd[2];
     pipe(fd);
     if(fork()){
@@ -18,10 +17,14 @@ int main(){
     }else{
         dup2(fd[1],STDOUT_FILENO);
         close(fd[0]);
-        execl("/opt/MAST/bin/password_asker","password_asker",NULL);
+        execl("/opt/MAST/bin/password_asker", "password_asker", NULL);
+        return 1;
     }
+
+    string pwd;
     cin>>pwd;
-    cout<<pwd<<endl;
+    pwd += "\n";
+    close(fd[0]);
 
     vector<int> pids;
     bool success = true;
@@ -31,9 +34,13 @@ int main(){
 
     success = cf->open();
     if (!success) {
-        cout<<"Problema apertura CryptoFileMap"<<endl;
+        cout<<"Can't access the file containing hashes!"<<endl;
         return 1;
     }
+
+    int mfd[2];
+    pipe(mfd);
+
     do {
         string delimiter = ":";
         string line;
@@ -46,27 +53,26 @@ int main(){
         string hash = line.substr(finder+1,line.length());
         string filepath = "/opt/MAST/modules/"+filename;
         if(hashGenerator->verifyIntegrity(filepath,hash,success) == true){
-            int* array_fds = (int*)calloc(2,sizeof(int));
-            pipe(array_fds);
             int pid = fork();
             if(pid>0){
                 pids.push_back(pid);
-                dup2(array_fds[1],STDOUT_FILENO);
-                close(array_fds[0]);
-                cout<<pwd<<endl;
+                write(mfd[1], pwd.c_str(), pwd.length()+1);
             }else{
-                dup2(array_fds[0],STDIN_FILENO);
-                close(array_fds[1]);
-                execl(filepath.c_str(),filename.c_str(),NULL);
+                dup2(mfd[0], STDIN_FILENO);
+                close(mfd[1]);
+                execl("/bin/bash", "bash", filepath.c_str(),NULL);
+                return 1;
             }
         }else{
-            execl("/opt/MAST/bin/alert_user","alert_user","MAST","Corrupted modules files",NULL);
+            string command = "/opt/MAST/bin/alert_user MAST \"Corrupted module " + filename + "!\"";
+            system(command.c_str());
         }
     } while (cf->next());
-/*
-    for(int pid:pids){
+
+    for(int pid:pids)
         waitpid(pid,NULL,0);
-    }
- */
+
+    close(mfd[0]);
+    close(mfd[1]);
     return 0;
 }

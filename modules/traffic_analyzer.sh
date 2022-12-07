@@ -61,7 +61,7 @@ do
         do
             iface=$(cut -d ':' -f 1 <<< "$i")
             packets=$(cut -d ':' -f 2 <<< "$i")
-            packetsDiff=$(($packets-${prevCollection[$iface]}))
+            packetsDiff=$(awk '{printf $1-$2;}' <<< "$packets ${prevCollection[$iface]}")
             line="$timestamp:$iface:$packetsDiff"
             /opt/MAST/bin/cryptofile -w /var/MAST/modules/ta_out "$line" <<< "$pwd"
             saved=$saved$'\n'$line
