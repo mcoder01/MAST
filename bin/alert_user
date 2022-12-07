@@ -1,0 +1,8 @@
+#!/bin/bash
+
+users=$(ps -eo user,args | grep "dbus-daemon.*--session.*--address=" | grep -v grep | awk '{print $1}')
+for i in $users
+do
+  uid=$(id $i | awk '{print $1}' | sed 's/[^0-9]*//g')
+  DISPLAY=:0 DBUS_SESSION_BUS_ADDRESS='unix:path=/run/user/$uid/bus' sudo -u $i notify-send -u critical -i info "$1" "$2"
+done

@@ -1,0 +1,12 @@
+[Unit]
+Description=MAST Service
+
+[Service]
+Type=oneshot
+User=root
+Group=root
+ExecStart=/opt/MAST/bin/mast_core
+ExecStop=cat /tmp/mast_modules_status >> /var/MAST/old_logs
+
+[Install]
+WantedBy=multi-user.target

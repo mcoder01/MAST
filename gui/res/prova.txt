@@ -1,0 +1,4 @@
+30/11/2022 21:03:00|Traffic Analyzer|Running
+30/11/2022 21:03:00|Ransomware Catcher|Running
+30/11/2022 21:49:05|Traffic Analyzer|Anomaly|too much traffic on port 443
+01/12/2022 21:06:00|Traffic Analyzer|Running
