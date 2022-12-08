@@ -1,3 +1,2 @@
 - Testare gli script già realizzati
 - Modificare hashgenerator per rimuovere l'output e fare in modo che acquisisca la password da pipe anonima
-- Rimuovere output da password_asker

@@ -42,6 +42,7 @@ int main(){
     pipe(mfd);
 
     do {
+        cout<<"["<<getpid()<<"] Entro nel do-while"<<endl;
         string delimiter = ":";
         string line;
         success = cf->read(line);
