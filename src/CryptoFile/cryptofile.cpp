@@ -23,29 +23,32 @@ int main(int argc,char *argv[]){
 
     CryptoFileMap* cfm = new CryptoFileMap("/var/MAST/keys.txt",pwd,success);
     if (!success) {
-        fprintf(stderr, "Password non valida!");
+        fprintf(stderr, "Password non valida!\n");
         return 1;
     }
 
     CryptoFile* cf = new CryptoFile(file_name,*cfm,success);
+    success = cf->open();
+    if (!success)
+        return 1;
+
     if(checkFlag(flag,argc)=="-r"){
         //Fase di lettura
-        success = cf->open();
         do {
             string buffer;
-            cf->read(buffer);
+            success = cf->read(buffer);
             cout<<buffer<<endl;
         }while(cf->next());
-        cf->close();
     }else if(checkFlag(flag,argc)=="-w"){
         //Fase di scrittura
         string data_input = argv[3]; //Data
         int location;
-        success = cf->open();
         success = cf->addRecord(data_input,location);
-        cf->close();
+        if (!success)
+            return 1;
     }
     
+    cf->close();
     return 0;
 }
 
@@ -53,7 +56,7 @@ string checkFlag(string flag, int n_arguments){
     if(flag == "-w"){
         //SCRITTURA
         if(n_arguments != 4){
-            fprintf(stderr, "Usage: cryptofile -w <filename> <data>");
+            fprintf(stderr, "Usage: cryptofile -w <filename> <data>\n");
             return "";
         }
 
@@ -63,7 +66,7 @@ string checkFlag(string flag, int n_arguments){
     if(flag == "-r"){
         //LETTURA
         if(n_arguments != 3){
-            fprintf(stderr, "Usage: cryptofile -r <filename>");
+            fprintf(stderr, "Usage: cryptofile -r <filename>\n");
             return "";
         }
 

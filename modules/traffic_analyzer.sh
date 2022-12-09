@@ -2,22 +2,21 @@
 
 doing_profiling() {
     # Checks if the profiling is done
-    ranges=('1-31' '1-7' '1-12' '0-23')
-    for i in {1..4}
+    ranges=('1-7' '1-31' '1-12' '0-23')
+    for i in ${!ranges[@]}
     do
         start=$(cut -d '-' -f 1 <<< "${ranges[$i]}")
         end=$(cut -d '-' -f 2 <<< "${ranges[$i]}")
-        for j in {$start..$end}
+        for (( j=$start; j<=$end; j++ ))
         do
-            found=$(awk -F ':' '{print $1}' <<< "$1" | grep $j)
+            found=$(cut -d ':' -f $(($i+1)) <<< "$1" | grep $j)
             if [ -z "$found" ]
             then
-                echo 1
-                return
+                return 1
             fi
         done
     done
-    echo 0
+    return 0
 }
 
 detect_anomaly() {
@@ -48,7 +47,8 @@ fi
 prevCollection=()
 while true
 do
-    profiling=$(doing_profiling "$saved")
+    doing_profiling "$saved"
+    profiling=$?
 
     # Raccolta dei nuovi dati
     timestamp=$(date "+%-d:%-u:%-m:%-H")
@@ -69,7 +69,7 @@ do
         done
         echo "$(date '+%x %X')|Traffic Analyzer|Profiling" >> /tmp/mast_modules_status
     else
-        anomalies=()
+        declare -A anomalies=()
         for i in {1..4}
         do
             timeinfo_new=$(cut -d ':' -f $i <<< "$timestamp")
@@ -108,6 +108,7 @@ do
 
         for i in ${!anomalies[@]}
         do
+            echo "$i"
             if [ ${anomalies[$i]} -gt 2 ]
             then
                 # Notificazione dell'anomalia all'utente e alla GUI
