@@ -46,17 +46,9 @@ public class DetailUI extends GenericUI {
         JButton[] buttons = new JButton[n];
         for(int i=0;i<n;i++){
             if(i<moduleNames.size()){
-                String status;
-                String color;
-                if(LogParser.getInstance().findAnomalies(moduleNames.get(i))){
-                    status = "Anomalia";
-                    color = "red";
-                }else{
-                    status = "In esecuzione";
-                    color = "green";
-                }
+                LogParser.Status status = LogParser.getInstance().getModuleStatus(moduleNames.get(i));
                 buttons[i] = new JButton("<html>" + moduleNames.get(i) + "<br> <p style=\"text-align:center;color:"
-                        + color + ";\">"  + status + "</p></html>");
+                        + status.getColor() + ";\">"  + status.getText() + "</p></html>");
             }else{
                 buttons[i] = new JButton("Vuoto");
                 buttons[i].setEnabled(false);

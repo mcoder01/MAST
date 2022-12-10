@@ -1,5 +1,6 @@
 package cs.mast.view.ui;
 
+import cs.mast.util.LogParser;
 import cs.mast.view.Window;
 
 import javax.swing.*;
@@ -8,6 +9,7 @@ import java.io.IOException;
 
 public class HomeUI extends GenericUI {
     private JPanel highPanel, lowPanel;
+    private JLabel outputLabel;
 
     public HomeUI(Window window){
         super(window);
@@ -41,7 +43,24 @@ public class HomeUI extends GenericUI {
     protected void addWidgets(){
         highPanel.add(getIconLabel());
 
-        JLabel outputLabel = new JLabel(" ", SwingConstants.CENTER);
+        boolean running = LogParser.getInstance().size() > 0;
+        String outputText, outputColor;
+        if (running) {
+            if (LogParser.getInstance().foundAnyAnomaly()) {
+                outputText = "È stata rilevata qualche anomalia!";
+                outputColor = "red";
+            } else {
+                outputText = "Servizio in esecuzione";
+                outputColor = "green";
+            }
+        } else {
+            outputText = "Servizio non in esecuzione";
+            outputColor = "gray";
+        }
+
+        outputLabel = new JLabel("",
+                SwingConstants.CENTER);
+        refreshInfoLabel(outputText, outputColor);
         outputLabel.setFont(window.getFont().deriveFont(22f));
         highPanel.add(outputLabel);
 
@@ -54,7 +73,8 @@ public class HomeUI extends GenericUI {
         detailLabel.setToolTipText("Clicca qui per iniziare visualizzare tutti i dettagli");
         lowPanel.add(detailLabel);
 
-        JButton startButton = new JButton("Inizia analisi");
+        String text = running ? "Stop analisi" : "Inizia analisi";
+        JButton startButton = new JButton(text);
         startButton.setFont(window.getFont().deriveFont(12f));
         startButton.setBounds(200,0,200,20);
         startButton.addActionListener(e -> {
@@ -65,7 +85,7 @@ public class HomeUI extends GenericUI {
                 //pb.inheritIO();
                 try {
                     Process p = pb.start();
-                    outputLabel.setText("<html><h1 style='text-align:center;'>Mast service avviato<br>Analisi in corso</h1></html>");
+                    refreshInfoLabel("Servizio in esecuzione", "lime");
                     int exitStatus = p.waitFor();
                     System.out.println(exitStatus);
                     startButton.setText("Stop analisi");
@@ -81,7 +101,7 @@ public class HomeUI extends GenericUI {
                     int exitStatus = p.waitFor();
                     System.out.println(exitStatus);
                     startButton.setText("Inizia analisi");
-                    outputLabel.setText(" ");
+                    refreshInfoLabel("Servizio disattivato", "gray");
                 } catch (InterruptedException | IOException e1) {
                     e1.printStackTrace();
                 }
@@ -90,5 +110,9 @@ public class HomeUI extends GenericUI {
 
         detailLabel.addActionListener(e -> window.showDetails());
         lowPanel.add(startButton);
+    }
+
+    private void refreshInfoLabel(String text, String color) {
+        outputLabel.setText("<html><p style=\"color: " + color + ";\">" + text + "</p></html>");
     }
 }

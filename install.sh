@@ -53,6 +53,8 @@ check_dependencies() {
         printf "\nSome dependencies can not be found on the system. Please install them before running this installation.\n"
         exit 1
     fi
+
+    echo ""
 }
 
 check_installation() {
@@ -65,10 +67,12 @@ check_installation() {
 
 compile() {
     # Compiling libraries
+    echo "Compiling libraries..."
     mkdir -p lib/CryptoFile/obj && g++ -c lib/CryptoFile/source/crypto.cpp -o lib/CryptoFile/obj/crypto.a; g++ -c lib/CryptoFile/source/cryptofile.cpp -o lib/CryptoFile/obj/cryptofile.a; g++ -c lib/CryptoFile/source/cryptofilemap.cpp -o lib/CryptoFile/obj/cryptofilemap.a
     g++ -c lib/hasher/hasher.cpp -o lib/hasher/hasher.a
 
     # Compiling binaries
+    echo "Compiling binaries..."
     g++ src/MastCore/mast_core.cpp lib/CryptoFile/obj/cryptofile.a lib/CryptoFile/obj/cryptofilemap.a lib/CryptoFile/obj/crypto.a lib/hasher/hasher.a -lpthread -lcryptopp -o bin/mast_core
     check_installation $?
     g++ src/HashGenerator/hashgenerator.cpp lib/CryptoFile/obj/cryptofile.a lib/CryptoFile/obj/cryptofilemap.a lib/CryptoFile/obj/crypto.a lib/hasher/hasher.a -lpthread -lcryptopp -o bin/hashgenerator
@@ -79,13 +83,24 @@ compile() {
 
 copy_files() {
     # Copying files
-    mkdir -p /opt/MAST /var/MAST /var/MAST/modules && systemctl link ./mast.service 2> /dev/null && cp -rf . /opt/MAST && chmod +x /opt/MAST/bin/*
+    echo "Copying files..."
+    mkdir -p /opt/MAST /var/MAST /var/MAST/modules && systemctl link ./mast.service 2> /dev/null && cp -rf . /opt/MAST && chmod +x /opt/MAST/bin/* && touch /var/MAST/old_logs
     check_installation $?
 
+    echo "Generating hashes..."
     pwd=$(/opt/MAST/bin/password_asker)
+    mkdir -p /opt/MAST/hashes
     for module in $(ls "/opt/MAST/modules")
     do
-        /opt/MAST/bin/hashgenerator "$module" "$pwd"
+        /opt/MAST/bin/hashgenerator module "/opt/MAST/modules/$module" <<< "$pwd"
+    done
+
+    for bin in $(ls "/opt/MAST/bin")
+    do
+        if [ "$bin" != "mast_core" ]
+        then
+            /opt/MAST/bin/hashgenerator binary "/opt/MAST/bin/$bin" <<< "$pwd"
+        fi
     done
 }
 

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+cat /tmp/mast_modules_status >> /var/MAST/old_logs
+echo "" > /tmp/mast_modules_status

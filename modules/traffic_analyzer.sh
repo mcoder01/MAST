@@ -32,7 +32,6 @@ detect_anomaly() {
 
 # Lettura della password da input
 read pwd
-echo "$pwd"
 
 if [ -f /var/MAST/modules/ta_out ]
 then
@@ -57,6 +56,9 @@ do
 
     if [ $profiling -eq 1 ]
     then
+        # Aggiornamento sullo stato del modulo
+        echo "$(date '+%x %X')|Traffic Analyzer|Profiling" >> /tmp/mast_modules_status
+
         # Profiling dei dati raccolti da ogni interfaccia di rete
         for i in $out_new
         do
@@ -69,9 +71,10 @@ do
             prevCollection[$iface]=$packets
         done
         prova=$(/opt/MAST/bin/cryptofile -r /var/MAST/modules/ta_out <<< "$pwd")
-        echo "$prova"
-        echo "$(date '+%x %X')|Traffic Analyzer|Profiling" >> /tmp/mast_modules_status
     else
+        # Aggiornamento sullo stato del modulo
+        echo "$(date '+%x %X')|Traffic Analyzer|Running" >> /tmp/mast_modules_status
+
         declare -A anomalies=()
         for i in {1..4}
         do
@@ -111,7 +114,6 @@ do
 
         for i in ${!anomalies[@]}
         do
-            echo "$i"
             if [ ${anomalies[$i]} -gt 2 ]
             then
                 # Notificazione dell'anomalia all'utente e alla GUI
@@ -119,9 +121,6 @@ do
                 echo "$(date '+%x %X')|Traffic Analyzer|Anomaly|too much data traffic on the interface $i" >> /tmp/mast_modules_status
             fi
         done
-
-        # Aggiornamento sullo stato del modulo
-        echo "$(date '+%x %X')|Traffic Analyzer|Running" >> /tmp/mast_modules_status
     fi
 
     sleep 600 # Aspetta 10 minuti prima di effettuare la prossima scansione

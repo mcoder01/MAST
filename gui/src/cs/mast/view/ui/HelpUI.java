@@ -54,7 +54,7 @@ public class HelpUI extends GenericUI {
             System.out.println("Passa alla schermata principale");
             if (!check.isSelected())
                 firstLaunch.delete();
-            window.start();
+            window.showHome();
         });
         lowPanel.add(nextWindow);
     }

@@ -4,6 +4,7 @@
 #include <string.h>
 #include <vector>
 #include <stdlib.h>
+#include <sstream>
 #include <sys/wait.h>
 
 using namespace std;
@@ -29,12 +30,12 @@ int main(){
     vector<int> pids;
     bool success = true;
     string hash_string;
-    Hasher* hashGenerator = new Hasher();
-    CryptoFile* cf = new CryptoFile("/opt/MAST/hash.txt", pwd, false, success);
+    Hasher* hasher = new Hasher();
 
+    CryptoFile* cf = new CryptoFile("/opt/MAST/hashes.txt", pwd, false, success);
     success = cf->open();
     if (!success) {
-        cout<<"Can't access the file containing hashes!"<<endl;
+        cout<<"Can't access the file containing the hashes!"<<endl;
         return 1;
     }
 
@@ -42,30 +43,32 @@ int main(){
     pipe(mfd);
 
     do {
-        cout<<"["<<getpid()<<"] Entro nel do-while"<<endl;
-        string delimiter = ":";
         string line;
         success = cf->read(line);
         if (!success)
             return 1;
 
-        int finder = line.find(delimiter);
-        string filename = line.substr(0,finder);
-        string hash = line.substr(finder+1,line.length());
-        string filepath = "/opt/MAST/modules/"+filename;
-        if(hashGenerator->verifyIntegrity(filepath,hash,success) == true){
-            int pid = fork();
-            if(pid>0){
-                pids.push_back(pid);
-                write(mfd[1], pwd.c_str(), pwd.length()+1);
-            }else{
-                dup2(mfd[0], STDIN_FILENO);
-                close(mfd[1]);
-                execl("/bin/bash", "bash", filepath.c_str(),NULL);
-                return 1;
+        stringstream ss(line);
+        string filetype, filepath, hash;
+        getline(ss, filetype, ':');
+        getline(ss, filepath, ':');
+        getline(ss, hash, ':');
+
+        if(hasher->verifyIntegrity(filepath, hash, success)) {
+            if (filetype == "module") {
+                int pid = fork();
+                if(pid>0){
+                    pids.push_back(pid);
+                    write(mfd[1], pwd.c_str(), pwd.length()+1);
+                }else{
+                    dup2(mfd[0], STDIN_FILENO);
+                    close(mfd[1]);
+                    execl("/bin/bash", "bash", filepath.c_str(),NULL);
+                    return 1;
+                }
             }
         }else{
-            string command = "/opt/MAST/bin/alert_user MAST \"Corrupted module " + filename + "!\"";
+            string command = "/opt/MAST/bin/alert_user MAST \"Corrupted file " + filepath + "!\"";
             system(command.c_str());
         }
     } while (cf->next());

@@ -1,6 +1,7 @@
 package cs.mast.util;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.FileNotFoundException;
 import java.io.FileReader;
 import java.util.ArrayList;
@@ -18,12 +19,14 @@ public class LogParser extends ArrayList<Log> {
     }
 
     private void setup() {
-        try {
-            reader = new BufferedReader(new FileReader(logPath));
-        } catch (FileNotFoundException e) {
-            throw new RuntimeException(e);
+        if (new File(logPath).exists()) {
+            try {
+                reader = new BufferedReader(new FileReader(logPath));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+            parse();
         }
-        parse();
     }
 
     public void parse(){
@@ -45,15 +48,6 @@ public class LogParser extends ArrayList<Log> {
         }
     }
 
-    public ArrayList<Log> getLogsByName(String moduleName){
-        ArrayList<Log> list = new ArrayList<>();
-        for(Log l:this)
-            if(l.moduleName().equals(moduleName))
-                list.add(l);
-
-        return list;
-    }
-
     @Override
     public String toString(){
         String text = "";
@@ -63,13 +57,25 @@ public class LogParser extends ArrayList<Log> {
         return text;
     }
 
-    public boolean findAnomalies(String moduleName){
-        for(Log l:this){
-            if(l.status().equals("Anomaly") && l.moduleName().equals(moduleName)){
+    public boolean foundAnyAnomaly() {
+        for (Log l : this)
+            if (l.status().equals("Anomaly"))
                 return true;
+        return false;
+    }
+
+    public Status getModuleStatus(String moduleName) {
+        for(Log l:this) {
+            if (l.moduleName().equals(moduleName)) {
+                if (l.status().equals("Anomaly"))
+                    return Status.ANOMALY;
+                if (l.status().equals("Profiling"))
+                    return Status.PROFILING;
+                return Status.ANOMALY;
             }
         }
-        return false;
+
+        return null;
     }
 
     public ArrayList<String> findModuleNames(){
@@ -85,5 +91,25 @@ public class LogParser extends ArrayList<Log> {
         if (instance == null)
             instance = new LogParser();
         return instance;
+    }
+
+    public enum Status {
+        RUNNING("In esecuzione...", "lime"),
+        PROFILING("Profiling...", "#FFAA00"),
+        ANOMALY("Anomalia!", "red");
+
+        private final String text, color;
+        Status(String text, String color) {
+            this.text = text;
+            this.color = color;
+        }
+
+        public String getText() {
+            return text;
+        }
+
+        public String getColor() {
+            return color;
+        }
     }
 }

@@ -36,24 +36,6 @@ public class Window extends JFrame {
         setVisible(true);
     }
 
-    public void start() {
-        addMenu();
-        showHome();
-    }
-
-    private void addMenu() {
-        JMenuBar mb = new JMenuBar();
-        JMenu x = new JMenu("MAST");
-        x.setFont(font.deriveFont(14f));
-
-        JMenuItem m1 = new JMenuItem("Help");
-        m1.setAccelerator(KeyStroke.getKeyStroke('A', Toolkit.getDefaultToolkit().getMenuShortcutKeyMaskEx()));
-        m1.setToolTipText("Premi qui per visualizzare le istruzioni del programma");
-        m1.setFont(font.deriveFont(12f));
-        x.add(m1);
-        setJMenuBar(mb);
-    }
-
     public void showHome() {
         if (home == null) {
             home = new HomeUI(this);

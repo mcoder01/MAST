@@ -30,7 +30,6 @@ detect_anomaly() {
 }
 
 read pwd
-echo "$pwd"
 
 if [ -f /var/MAST/modules/rc_out ]
 then
@@ -49,9 +48,18 @@ do
     doing_profiling "$saved"
     profiling=$?
 
+    if [ $profiling -eq 1 ]
+    then
+        # Modulo in profiling
+        echo "$(date '+%x %X')|Ransomware Catcher|Profiling" >> /tmp/mast_modules_status
+    else
+        # Modulo in esecuzione
+        echo "$(date '+%x %X')|Ransomware Catcher|Running" >> /tmp/mast_modules_status
+    fi
+
     # Raccolta dei nuovi dati
     timestamp=$(date "+%-u:%-d:%-m:%-H")
-    out_new=$(perf stat --no-big-num -a -e 'syscalls:sys_enter_read,syscalls:sys_enter_write,syscalls:sys_enter_open' sleep 5 2>&1 | awk '/[0-9]+.+syscalls/ {ORS=/^>/?"\n":""; print $1 ":" $3;}' | cut -d ':' -f 1-3)
+    out_new=$(perf stat --no-big-num -a -e 'syscalls:sys_enter_read,syscalls:sys_enter_write,syscalls:sys_enter_open' sleep 600 2>&1 | awk '/[0-9]+.+syscalls/ {ORS=/^>/?"\n":""; print $1 ":" $3;}' | cut -d ':' -f 1-3)
 
     if [ $profiling -eq 1 ]
     then
@@ -59,8 +67,6 @@ do
         saved=$saved$'\n'$line
         /opt/MAST/bin/cryptofile -w /var/MAST/modules/rc_out "$line" <<< "$pwd"
         prova=$(/opt/MAST/bin/cryptofile -r /var/MAST/modules/rc_out <<< "$pwd")
-        echo "$prova"
-        echo "$(date '+%x %X')|Ransomware Catcher|Profiling" >> /tmp/mast_modules_status
     else
         anomalies=0
         for i in {1..4}
@@ -118,6 +124,5 @@ do
             /opt/MAST/bin/alert_user "MAST - Ransomware Catcher" "Ransomware alert!"
             echo "$(date '+%x %X')|Ransomware Catcher|Anomaly|detected high number of file operations!" >> /tmp/mast_modules_status
         fi
-        echo "$(date '+%x %X')|Ransomware Catcher|Running" >> /tmp/mast_modules_status
     fi
 done
