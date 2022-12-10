@@ -1,2 +1,1 @@
-- Testare gli script già realizzati
-- Modificare hashgenerator per rimuovere l'output e fare in modo che acquisisca la password da pipe anonima
+- Creazione del file /tmp/mast_modules_status all'interno della gui, quando non esiste
