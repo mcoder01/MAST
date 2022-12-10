@@ -14,7 +14,7 @@ class CryptoFileMap
         CryptoFile *cryptoFile = NULL;
 
         /// @brief Separator used for the key-value pairs
-        const char pairSeparator = ':';
+        const char pairSeparator = '|';
 
         /**
          * @brief Get a delimited substring starting from the beginning of a string

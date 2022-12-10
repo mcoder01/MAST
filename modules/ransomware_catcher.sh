@@ -2,22 +2,21 @@
 
 doing_profiling() {
     # Checks if the profiling is done
-    ranges=('1-31' '1-7' '1-12' '0-23')
-    for i in {1..4}
+    ranges=('1-7' '1-31' '1-12' '0-23')
+    for i in ${!ranges[@]}
     do
         start=$(cut -d '-' -f 1 <<< "${ranges[$i]}")
         end=$(cut -d '-' -f 2 <<< "${ranges[$i]}")
-        for j in {$start..$end}
+        for (( j=$start; j<=$end; j++ ))
         do
-            found=$(awk -F ':' '{print $1}' <<< "$1" | grep $j)
+            found=$(cut -d ':' -f $(($i+1)) <<< "$1" | grep $j)
             if [ -z "$found" ]
             then
-                echo 1
-                return
+                return 1
             fi
         done
     done
-    echo 0
+    return 0
 }
 
 detect_anomaly() {
@@ -25,12 +24,13 @@ detect_anomaly() {
     awk '{
             y=50*$1^(3/5)+5*$1;
             if (y < $2)
-                printf 1;
-            else printf 0;
+                print "1";
+            else print "0";
         }' <<< "$1 $2"
 }
 
 read pwd
+echo "$pwd"
 
 if [ -f /var/MAST/modules/rc_out ]
 then
@@ -46,17 +46,20 @@ fi
 
 while true
 do
-    profiling=$(doing_profiling "$saved")
+    doing_profiling "$saved"
+    profiling=$?
 
     # Raccolta dei nuovi dati
-    timestamp=$(date "+%-d:%-u:%-m:%-H")
-    out_new=$(perf stat --no-big-num -a -e 'syscalls:sys_enter_read,syscalls:sys_enter_write,syscalls:sys_enter_open' sleep 600 2>&1 | awk '{ORS=/^>/?"\n":""; s=((NR+2)%3==0)?"\n":""; print $2 " " $3 " " s; fflush();}' | awk '{print $1 "-" $3 "-" $5; fflush();}' | grep -v --line-buffered 'time\|counts')
+    timestamp=$(date "+%-u:%-d:%-m:%-H")
+    out_new=$(perf stat --no-big-num -a -e 'syscalls:sys_enter_read,syscalls:sys_enter_write,syscalls:sys_enter_open' sleep 5 2>&1 | awk '/[0-9]+.+syscalls/ {ORS=/^>/?"\n":""; print $1 ":" $3;}' | cut -d ':' -f 1-3)
 
     if [ $profiling -eq 1 ]
     then
         line="$timestamp:$out_new"
         saved=$saved$'\n'$line
         /opt/MAST/bin/cryptofile -w /var/MAST/modules/rc_out "$line" <<< "$pwd"
+        prova=$(/opt/MAST/bin/cryptofile -r /var/MAST/modules/rc_out <<< "$pwd")
+        echo "$prova"
         echo "$(date '+%x %X')|Ransomware Catcher|Profiling" >> /tmp/mast_modules_status
     else
         anomalies=0
@@ -82,18 +85,20 @@ do
             avgs=()
             for j in {1..3}
             do
-                avgs=$(awk '{printf $1/$2}' <<< "${sums[$j]} ${counts[$j]}")
+                avgs[$j]=$(awk '{print $1/$2;}' <<< "${sums[$j]} ${counts[$j]}")
             done
 
             anomaly=0
             for j in $out_new
             do
-                anomalies=0
                 for k in {1..3}
                 do
                     val=$(cut -d ':' -f $k <<< "$j")
-                    da=$(detect_anomaly ${avgs[$k]} $val)
-                    anomaly=1
+                    anomaly=$(detect_anomaly ${avgs[$k]} $val)
+                    if [ $anomaly -eq 1 ]
+                    then
+                        break
+                    fi
                 done
 
                 if [ $anomaly -eq 1 ]

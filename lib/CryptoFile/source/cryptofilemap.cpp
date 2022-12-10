@@ -54,14 +54,19 @@ bool CryptoFileMap::write(string key, string value)
 string CryptoFileMap::read(string key, bool &success)
 {
     string res;
-    bool e;
+    bool e,found=false;
     string kdecoded,vencoded;
 
     //Searching for the record containing the key
     do
     {
+        //Cleaning the string used for the key
+        kdecoded = "";
+
+
         string rd;
 
+        //Reading the record
         e = this->cryptoFile->read(rd);
 
         if(!e)
@@ -84,6 +89,8 @@ string CryptoFileMap::read(string key, bool &success)
             //Decodicng the value
             StringSource(vencoded,true,new HexDecoder(new StringSink(res)));
 
+            found = true;
+
             break;
         }
     }
@@ -92,8 +99,16 @@ string CryptoFileMap::read(string key, bool &success)
     //Resetting pointer position
     while(this->cryptoFile->previous()) {}
 
-    success = true;
-    return res;
+    if(found)
+    {
+        success = true;
+        return res;
+    }
+    else
+    {
+        success = false;
+        return NULL;
+    }
 
 }
 

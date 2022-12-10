@@ -64,12 +64,16 @@ check_installation() {
 }
 
 compile() {
+    # Compiling libraries
+    mkdir -p lib/CryptoFile/obj && g++ -c lib/CryptoFile/source/crypto.cpp -o lib/CryptoFile/obj/crypto.a; g++ -c lib/CryptoFile/source/cryptofile.cpp -o lib/CryptoFile/obj/cryptofile.a; g++ -c lib/CryptoFile/source/cryptofilemap.cpp -o lib/CryptoFile/obj/cryptofilemap.a
+    g++ -c lib/hasher/hasher.cpp -o lib/hasher/hasher.a
+
     # Compiling binaries
-    g++ src/MastCore/mast_core.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp lib/hasher/hasher.cpp -lpthread -lcryptopp -o bin/mast_core
+    g++ src/MastCore/mast_core.cpp lib/CryptoFile/obj/cryptofile.a lib/CryptoFile/obj/cryptofilemap.a lib/CryptoFile/obj/crypto.a lib/hasher/hasher.a -lpthread -lcryptopp -o bin/mast_core
     check_installation $?
-    g++ src/HashGenerator/hashgenerator.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp lib/hasher/hasher.cpp -lpthread -lcryptopp -o bin/hashgenerator
+    g++ src/HashGenerator/hashgenerator.cpp lib/CryptoFile/obj/cryptofile.a lib/CryptoFile/obj/cryptofilemap.a lib/CryptoFile/obj/crypto.a lib/hasher/hasher.a -lpthread -lcryptopp -o bin/hashgenerator
     check_installation $?
-    g++ src/CryptoFile/cryptofile.cpp lib/CryptoFile/source/cryptofile.cpp lib/CryptoFile/source/cryptofilemap.cpp lib/CryptoFile/source/crypto.cpp -lpthread -lcryptopp -o bin/cryptofile
+    g++ src/CryptoFile/cryptofile.cpp lib/CryptoFile/obj/cryptofile.a lib/CryptoFile/obj/cryptofilemap.a lib/CryptoFile/obj/crypto.a -lpthread -lcryptopp -o bin/cryptofile
     check_installation $?
 }
 

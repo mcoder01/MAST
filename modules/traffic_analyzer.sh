@@ -32,6 +32,8 @@ detect_anomaly() {
 
 # Lettura della password da input
 read pwd
+echo "$pwd"
+
 if [ -f /var/MAST/modules/ta_out ]
 then
     saved=$(/opt/MAST/bin/cryptofile -r /var/MAST/modules/ta_out <<< "$pwd")
@@ -43,7 +45,6 @@ else
     saved=""
 fi
 
-
 prevCollection=()
 while true
 do
@@ -51,7 +52,7 @@ do
     profiling=$?
 
     # Raccolta dei nuovi dati
-    timestamp=$(date "+%-d:%-u:%-m:%-H")
+    timestamp=$(date "+%-u:%-d:%-m:%-H")
     out_new=$(netstat -i | awk '/[0-9]+/ {print $1 ":" $3+$7}')
 
     if [ $profiling -eq 1 ]
@@ -67,6 +68,8 @@ do
             saved=$saved$'\n'$line
             prevCollection[$iface]=$packets
         done
+        prova=$(/opt/MAST/bin/cryptofile -r /var/MAST/modules/ta_out <<< "$pwd")
+        echo "$prova"
         echo "$(date '+%x %X')|Traffic Analyzer|Profiling" >> /tmp/mast_modules_status
     else
         declare -A anomalies=()

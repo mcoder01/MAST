@@ -6,8 +6,8 @@ import java.io.FileReader;
 import java.util.ArrayList;
 
 public class LogParser extends ArrayList<Log> {
-    //private static final String logPath = "/tmp/mast_modules_status";
-    private static final String logPath = "res/prova.txt";
+    private static final String logPath = "/tmp/mast_modules_status";
+    //private static final String logPath = "res/prova.txt";
 
     private static LogParser instance;
     private BufferedReader reader;
