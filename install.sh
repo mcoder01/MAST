@@ -84,7 +84,7 @@ compile() {
 copy_files() {
     # Copying files
     echo "Copying files..."
-    mkdir -p /opt/MAST /var/MAST /var/MAST/modules && systemctl link ./mast.service 2> /dev/null && cp -rf . /opt/MAST && chmod +x /opt/MAST/bin/* && touch /var/MAST/old_logs
+    mkdir -p /opt/MAST /var/MAST /var/MAST/modules && systemctl link ./mast.service 2> /dev/null && cp -rf . /opt/MAST && chmod +x /opt/MAST/bin/*
     check_installation $?
 
     echo "Generating hashes..."

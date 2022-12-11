@@ -8,44 +8,44 @@ import java.util.ArrayList;
 
 public class LogParser extends ArrayList<Log> {
     private static final String logPath = "/tmp/mast_modules_status";
-    //private static final String logPath = "res/prova.txt";
 
     private static LogParser instance;
+    private File logFile;
     private BufferedReader reader;
 
     private LogParser() {
         super();
-        setup();
+        parse();
     }
 
-    private void setup() {
-        if (new File(logPath).exists()) {
-            try {
-                reader = new BufferedReader(new FileReader(logPath));
-            } catch (FileNotFoundException e) {
-                throw new RuntimeException(e);
-            }
-            parse();
+    public boolean parse(){
+        if (reader == null)
+            loadFile();
+
+        if (logFile == null || logFile.length() == 0) {
+            clear();
+            return false;
         }
-    }
 
-    public void parse(){
         try{
             while(reader.ready()){
                 String line = reader.readLine();
                 String[] lineInfo = line.split("\\|");
                 String timestamp = lineInfo[0];
                 String moduleName = lineInfo[1];
-                String status = lineInfo[2];
+                Log.Status status = Log.Status.valueOf(lineInfo[2].toUpperCase());
                 String message = "";
                 if (lineInfo.length == 4)
                     message = lineInfo[3];
-                Log log = new Log(timestamp, moduleName, status, message);
-                add(log);
+                add(new Log(timestamp, moduleName, status, message));
             }
+
+            return true;
         } catch (Exception e) {
             e.printStackTrace();
         }
+
+        return false;
     }
 
     @Override
@@ -59,19 +59,18 @@ public class LogParser extends ArrayList<Log> {
 
     public boolean foundAnyAnomaly() {
         for (Log l : this)
-            if (l.status().equals("Anomaly"))
+            if (l.status() == Log.Status.ANOMALY)
                 return true;
         return false;
     }
 
-    public Status getModuleStatus(String moduleName) {
-        for(Log l:this) {
-            if (l.moduleName().equals(moduleName)) {
-                if (l.status().equals("Anomaly"))
-                    return Status.ANOMALY;
-                if (l.status().equals("Profiling"))
-                    return Status.PROFILING;
-                return Status.ANOMALY;
+    public Log.Status getModuleStatus(String moduleName) {
+        for (int i = size()-1; i >= 0; i--) {
+            Log log = get(i);
+            if (log.moduleName().equals(moduleName)) {
+                if (log.status() == Log.Status.RUNNING && i > 0)
+                    continue;
+                return log.status();
             }
         }
 
@@ -87,29 +86,20 @@ public class LogParser extends ArrayList<Log> {
         return moduleNames;
     }
 
+    public void loadFile() {
+        logFile = new File(logPath);
+        if (logFile.exists()) {
+            try {
+                reader = new BufferedReader(new FileReader(logPath));
+            } catch (FileNotFoundException e) {
+                throw new RuntimeException(e);
+            }
+        }
+    }
+
     public static LogParser getInstance() {
         if (instance == null)
             instance = new LogParser();
         return instance;
-    }
-
-    public enum Status {
-        RUNNING("In esecuzione...", "lime"),
-        PROFILING("Profiling...", "#FFAA00"),
-        ANOMALY("Anomalia!", "red");
-
-        private final String text, color;
-        Status(String text, String color) {
-            this.text = text;
-            this.color = color;
-        }
-
-        public String getText() {
-            return text;
-        }
-
-        public String getColor() {
-            return color;
-        }
     }
 }

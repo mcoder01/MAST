@@ -22,6 +22,9 @@ public class HelpUI extends GenericUI {
         addWidget();
     }
 
+    @Override
+    public void refresh() {}
+
     private void addPanels() {
         panel = new JPanel();
         panel.setPreferredSize(new Dimension(200,200));

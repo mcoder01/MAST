@@ -1,5 +1,6 @@
 package cs.mast.view.ui;
 
+import cs.mast.util.Log;
 import cs.mast.util.LogParser;
 import cs.mast.view.Window;
 
@@ -9,6 +10,7 @@ import java.util.ArrayList;
 
 public class DetailUI extends GenericUI {
     private JPanel mainPanel;
+    private JButton[] buttons;
 
     public DetailUI(Window window){
         super(window);
@@ -25,6 +27,27 @@ public class DetailUI extends GenericUI {
     }
 
     @Override
+    public void refresh() {
+        if (buttons == null)
+            return;
+
+        ArrayList<String> moduleNames = LogParser.getInstance().findModuleNames();
+        GridLayout layout = (GridLayout) mainPanel.getLayout();
+        int n = layout.getRows()*layout.getColumns();
+        for (int i = 0; i < n; i++)
+            if(i<moduleNames.size()){
+                Log.Status status = LogParser.getInstance().getModuleStatus(moduleNames.get(i));
+                buttons[i].setText("<html><h2 style=\"text-align:center;\">" + moduleNames.get(i) +
+                        "</h2><h3 style=\"text-align:center;color:" + status.getColor() + ";\">" + status.getText()
+                        + "</h3></html>");
+                buttons[i].setEnabled(true);
+            }else{
+                buttons[i].setText("Vuoto");
+                buttons[i].setEnabled(false);
+            }
+    }
+
+    @Override
     protected void addBackButton() {
         super.addBackButton();
         backButton.addActionListener(e -> window.showHome());
@@ -32,6 +55,7 @@ public class DetailUI extends GenericUI {
 
     @Override
     public void invoke() {
+        addComponents();
         for (Component c : mainPanel.getComponents())
             if (c instanceof JButton)
                 mainPanel.remove(c);
@@ -43,18 +67,10 @@ public class DetailUI extends GenericUI {
         ArrayList<String> moduleNames = LogParser.getInstance().findModuleNames();
         GridLayout layout = (GridLayout) mainPanel.getLayout();
         int n = layout.getRows()*layout.getColumns();
-        JButton[] buttons = new JButton[n];
+        buttons = new JButton[n];
         for(int i=0;i<n;i++){
-            if(i<moduleNames.size()){
-                LogParser.Status status = LogParser.getInstance().getModuleStatus(moduleNames.get(i));
-                buttons[i] = new JButton("<html>" + moduleNames.get(i) + "<br> <p style=\"text-align:center;color:"
-                        + status.getColor() + ";\">"  + status.getText() + "</p></html>");
-            }else{
-                buttons[i] = new JButton("Vuoto");
-                buttons[i].setEnabled(false);
-            }
-
-            buttons[i].setFont(window.getFont().deriveFont(12f));
+            buttons[i] = new JButton();
+            buttons[i].setFont(window.getFont().deriveFont(16f));
             buttons[i].setToolTipText("Clicca qui per visualizzare i log");
             final int index = i;
             buttons[i].addActionListener(l -> window.showLogs(moduleNames.get(index)));

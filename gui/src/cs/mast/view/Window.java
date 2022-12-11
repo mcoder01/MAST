@@ -12,8 +12,8 @@ import java.awt.image.BufferedImage;
 import java.io.File;
 import java.io.IOException;
 
-public class Window extends JFrame {
-    private GenericUI home, details;
+public class Window extends JFrame implements Runnable {
+    private GenericUI currentUi;
     private BufferedImage appIcon;
     private Font font;
 
@@ -34,33 +34,43 @@ public class Window extends JFrame {
         setLocationRelativeTo(null);
         setFont(font);
         setVisible(true);
+
+        Thread thread = new Thread(this);
+        thread.start();
     }
 
     public void showHome() {
-        if (home == null) {
-            home = new HomeUI(this);
-            home.addComponents();
-        }
-
-        home.invoke();
+        showUI(new HomeUI(this));
     }
 
     public void showDetails() {
-        if (details == null) {
-            details = new DetailUI(this);
-            details.addComponents();
-        }
-
-        details.invoke();
+        showUI(new DetailUI(this));
     }
 
     public void showLogs(String moduleName) {
-        LogUI logs = new LogUI(this, moduleName);
-        logs.addComponents();
-        logs.invoke();
+        showUI(new LogUI(this, moduleName));
+    }
+
+    private void showUI(GenericUI ui) {
+        currentUi = ui;
+        currentUi.invoke();
     }
 
     public BufferedImage getAppIcon() {
         return appIcon;
+    }
+
+    @Override
+    public void run() {
+        while(true) {
+            if (currentUi != null)
+                currentUi.refresh();
+
+            try {
+                Thread.sleep(10);
+            } catch (InterruptedException e) {
+                throw new RuntimeException(e);
+            }
+        }
     }
 }

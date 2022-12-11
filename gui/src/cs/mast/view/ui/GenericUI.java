@@ -15,6 +15,7 @@ public abstract class GenericUI extends JPanel {
     }
 
     public void invoke() {
+        addComponents();
         window.setContentPane(this);
         window.pack();
     }
@@ -30,4 +31,5 @@ public abstract class GenericUI extends JPanel {
     }
 
     public abstract void addComponents();
+    public abstract void refresh();
 }

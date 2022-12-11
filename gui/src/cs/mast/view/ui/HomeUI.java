@@ -9,7 +9,9 @@ import java.io.IOException;
 
 public class HomeUI extends GenericUI {
     private JPanel highPanel, lowPanel;
+    private JButton startButton, detailButton;
     private JLabel outputLabel;
+    private boolean running;
 
     public HomeUI(Window window){
         super(window);
@@ -28,6 +30,39 @@ public class HomeUI extends GenericUI {
         addWidgets();
     }
 
+    @Override
+    public void refresh() {
+        running = LogParser.getInstance().parse();
+        String outputText, outputColor;
+        if (running) {
+            if (startButton != null)
+                startButton.setText("Ferma analisi");
+
+            if (detailButton != null)
+                detailButton.setEnabled(true);
+
+            if (LogParser.getInstance().foundAnyAnomaly()) {
+                outputText = "È stata rilevata qualche anomalia!";
+                outputColor = "red";
+            } else {
+                outputText = "Servizio in esecuzione";
+                outputColor = "green";
+            }
+        } else {
+            if (startButton != null)
+                startButton.setText("Inizia analisi");
+
+            if (detailButton != null)
+                detailButton.setEnabled(false);
+
+            outputText = "Servizio non in esecuzione";
+            outputColor = "gray";
+        }
+
+        if (outputLabel != null)
+            outputLabel.setText("<html><p style=\"color: " + outputColor + ";\">" + outputText + "</p></html>");
+    }
+
     protected void addPanels() {
         highPanel = new JPanel();
         highPanel.setLayout(new GridLayout(2, 1));
@@ -43,52 +78,34 @@ public class HomeUI extends GenericUI {
     protected void addWidgets(){
         highPanel.add(getIconLabel());
 
-        boolean running = LogParser.getInstance().size() > 0;
-        String outputText, outputColor;
-        if (running) {
-            if (LogParser.getInstance().foundAnyAnomaly()) {
-                outputText = "È stata rilevata qualche anomalia!";
-                outputColor = "red";
-            } else {
-                outputText = "Servizio in esecuzione";
-                outputColor = "green";
-            }
-        } else {
-            outputText = "Servizio non in esecuzione";
-            outputColor = "gray";
-        }
-
         outputLabel = new JLabel("",
                 SwingConstants.CENTER);
-        refreshInfoLabel(outputText, outputColor);
         outputLabel.setFont(window.getFont().deriveFont(22f));
         highPanel.add(outputLabel);
 
-        JButton detailLabel = new JButton("Visualizza dettagli");
-        detailLabel.setFont(window.getFont().deriveFont(10f));
-        detailLabel.setBounds(200,50,200,20);
-        detailLabel.setBorderPainted(false);
-        detailLabel.setForeground(Color.BLUE);
-        detailLabel.setFocusPainted(false);
-        detailLabel.setToolTipText("Clicca qui per iniziare visualizzare tutti i dettagli");
-        lowPanel.add(detailLabel);
+        detailButton = new JButton("Visualizza dettagli");
+        detailButton.setFont(window.getFont().deriveFont(10f));
+        detailButton.setBounds(200,50,200,20);
+        detailButton.setBorderPainted(false);
+        detailButton.setForeground(Color.BLUE);
+        detailButton.setFocusPainted(false);
+        detailButton.setToolTipText("Clicca qui per iniziare visualizzare tutti i dettagli");
+        detailButton.setEnabled(false);
+        lowPanel.add(detailButton);
 
-        String text = running ? "Stop analisi" : "Inizia analisi";
-        JButton startButton = new JButton(text);
+        startButton = new JButton();
         startButton.setFont(window.getFont().deriveFont(12f));
         startButton.setBounds(200,0,200,20);
         startButton.addActionListener(e -> {
             //String[] comands = {getClass().getResource("mast.service"};
-            if(startButton.getText().equals("Inizia analisi")){
+            if(!running){
                 ProcessBuilder pb = new ProcessBuilder("systemctl", "enable", "--now", "mast.service");
                 //ProcessBuilder pb = new ProcessBuilder("echo","ciao");
                 //pb.inheritIO();
                 try {
                     Process p = pb.start();
-                    refreshInfoLabel("Servizio in esecuzione", "lime");
                     int exitStatus = p.waitFor();
                     System.out.println(exitStatus);
-                    startButton.setText("Stop analisi");
                 } catch (InterruptedException | IOException e1) {
                     e1.printStackTrace();
                 }
@@ -100,19 +117,13 @@ public class HomeUI extends GenericUI {
                     Process p = pb.start();
                     int exitStatus = p.waitFor();
                     System.out.println(exitStatus);
-                    startButton.setText("Inizia analisi");
-                    refreshInfoLabel("Servizio disattivato", "gray");
                 } catch (InterruptedException | IOException e1) {
                     e1.printStackTrace();
                 }
             }
         });
 
-        detailLabel.addActionListener(e -> window.showDetails());
+        detailButton.addActionListener(e -> window.showDetails());
         lowPanel.add(startButton);
-    }
-
-    private void refreshInfoLabel(String text, String color) {
-        outputLabel.setText("<html><p style=\"color: " + color + ";\">" + text + "</p></html>");
     }
 }

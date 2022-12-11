@@ -5,24 +5,32 @@ import cs.mast.util.LogParser;
 import cs.mast.view.Window;
 
 import javax.swing.*;
+import java.util.ArrayList;
 
-public class LogUI extends GenericUI implements Runnable {
+public class LogUI extends GenericUI {
     private final String moduleName;
     private JTextArea logArea;
+    private int lastShownLog;
 
     public LogUI(Window window, String moduleName) {
         super(window);
         this.moduleName = moduleName;
         setLayout(null);
-
-        Thread thread = new Thread(this);
-        thread.start();
+        lastShownLog = 0;
     }
 
     @Override
     public void addComponents() {
         addBackButton();
         addLogs();
+    }
+
+    @Override
+    public void refresh() {
+        ArrayList<Log> logs = LogParser.getInstance();
+        if (logArea != null)
+            for (; lastShownLog < logs.size(); lastShownLog++)
+                showLog(logs.get(lastShownLog));
     }
 
     @Override
@@ -41,20 +49,6 @@ public class LogUI extends GenericUI implements Runnable {
         logArea.setBounds(0, 60, 600, 550);
         logArea.setEditable(false);
         add(logArea);
-    }
-
-    @Override
-    public void run() {
-        int lastShownLog = 0;
-        while(true) {
-            LogParser.getInstance().parse();
-            if (logArea != null)
-                for (; lastShownLog < LogParser.getInstance().size(); lastShownLog++)
-                    showLog(LogParser.getInstance().get(lastShownLog));
-            try {
-                Thread.sleep(1000);
-            } catch (InterruptedException e) {}
-        }
     }
 
     private void showLog(Log log) {
