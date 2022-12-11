@@ -10,13 +10,13 @@ check_root() {
 
 remove_files() {
   rm -rf /opt/MAST
-  systemctl stop mast.service
+  systemctl stop mast.service 2> /dev/null
   systemctl disable mast.service 2> /dev/null
   rm -f /etc/systemd/system/mast.service 2> /dev/null
   rm -f /usr/lib/systemd/system/mast.service 2> /dev/null
   systemctl daemon-reload
   systemctl reset-failed
-  rm -f /tmp/mast_modules_status
+  rm -f /tmp/mast_modules_status 2> /dev/null
 }
 
 remove_data() {

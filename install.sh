@@ -93,7 +93,7 @@ copy_files() {
         pwd=$(/opt/MAST/bin/password_asker --new)
         if [ ${#pwd} -ge 6 ]
         then
-            break;
+            break
         fi
     done
 

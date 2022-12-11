@@ -13,6 +13,7 @@ int main(){
     string pwd;
     CryptoFile* cf;
     bool success;
+    string arg = "";
     do {
         int fd[2];
         pipe(fd);
@@ -23,7 +24,7 @@ int main(){
         }else{
             dup2(fd[1],STDOUT_FILENO);
             close(fd[0]);
-            execl("/opt/MAST/bin/password_asker", "password_asker", NULL);
+            execl("/opt/MAST/bin/password_asker", "password_asker", arg.c_str(), NULL);
             return 1;
         }
 
@@ -32,6 +33,7 @@ int main(){
         clearerr(stdin);
         close(fd[0]);
 
+        arg = "--wrong";
         while(pwd.length() < 16)
             pwd += "M";
 
