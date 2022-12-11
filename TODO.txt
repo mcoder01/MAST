@@ -1,1 +1,2 @@
-- Creazione del file /tmp/mast_modules_status all'interno della gui, quando non esiste
+- Fare presentazione power point
+- Fare relazione
