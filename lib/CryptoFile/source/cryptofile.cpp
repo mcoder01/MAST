@@ -101,7 +101,7 @@ CryptoFile::CryptoFile(string fname,CryptoFileMap keys,bool &success)
             return;
         }
 
-        //Initializing thei
+        //Initializing the cryptographyc engine
         crypto = Crypto(key,true);
 
         //Opening a stream for reading the file
@@ -128,21 +128,41 @@ CryptoFile::CryptoFile(string fname,CryptoFileMap keys,bool &success)
     else
     {
         this->created = false;
+        
+        //Searching an existing key in the keys file
+        int key = keys.read(this->filePath+"_key",e);
+        
+        if(e)
+        {
+            /*
+                A key already exists. 
+                No need to generate a new key
+            */
+            
+            //Initializing the cryptographyc engine
+            crypto = Crypto(key,true);
+        }
+        else
+        {
+            /*
+                The key does not exist.
+                A new one must be generated
+            */
+            //Generating a new key
+            this->crypto = Crypto();
+            
+            //Saving the generated key in CryptoFileMap
+            e = keys.write(this->filePath+"_key",crypto.getKey());
 
-        //Prperly initializing Crypto
-        this->crypto = Crypto();
+            if(!e)
+            {
+                success = false;
+                return;
+            }
+        }
 
         //Creating a blank file
         e = this->create();
-
-        if(!e)
-        {
-            success = false;
-            return;
-        }
-
-        //Saving the generated key in CryptoFileMap
-        e = keys.write(this->filePath+"_key",crypto.getKey());
 
         if(!e)
         {
