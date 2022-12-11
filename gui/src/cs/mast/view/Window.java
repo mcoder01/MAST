@@ -9,8 +9,8 @@ import javax.imageio.ImageIO;
 import javax.swing.*;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
 
 public class Window extends JFrame implements Runnable {
     private GenericUI currentUi;
@@ -18,10 +18,16 @@ public class Window extends JFrame implements Runnable {
     private Font font;
 
     {
-        try {
-            appIcon = ImageIO.read(new File("res/iconApp.png"));
-            font = Font.createFont(Font.TRUETYPE_FONT,new File("res/font/jack.ttf"));
-        } catch (IOException | FontFormatException e) {}
+        try(InputStream iconStream = getClass().getClassLoader().getResourceAsStream("images/iconApp.png");
+            InputStream fontStream = getClass().getClassLoader().getResourceAsStream("fonts/jack.ttf")) {
+            if (iconStream != null)
+                appIcon = ImageIO.read(iconStream);
+            else System.out.println("Problema");
+            if (fontStream != null)
+                font = Font.createFont(Font.TRUETYPE_FONT,fontStream);
+        } catch (IOException | FontFormatException e) {
+            e.printStackTrace();
+        }
     }
 
     public Window() {
