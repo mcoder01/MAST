@@ -16,6 +16,7 @@ remove_files() {
   rm -f /usr/lib/systemd/system/mast.service 2> /dev/null
   systemctl daemon-reload
   systemctl reset-failed
+  rm -f /tmp/mast_modules_status
 }
 
 remove_data() {
