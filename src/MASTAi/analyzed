@@ -1,2 +1,0 @@
-817 syscalls:sys_enter_read 67 syscalls:sys_enter_write 0 syscalls:sys_enter_open
-300000 syscalls:sys_enter_read 80000 syscalls:sys_enter_write 500 syscalls:sys_enter_open 

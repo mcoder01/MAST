@@ -1,1 +1,0 @@
-g++ ./test/test.cpp ./source/pcp.cpp ./source/crypto.cpp ./source/pipe.cpp -lcrypto -lpthread -lcryptopp -l:libcryptopp.a -o test.out
