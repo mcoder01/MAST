@@ -31,7 +31,7 @@ detect_anomaly() {
 }
 
 # Lettura della password da input
-read pwd
+read -r pwd
 
 if [ -f /var/MAST/modules/ta_out ]
 then

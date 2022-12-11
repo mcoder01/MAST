@@ -12,7 +12,7 @@ using namespace std;
 int main(){
     string pwd;
     CryptoFile* cf;
-    bool success = true;
+    bool success;
     do {
         int fd[2];
         pipe(fd);
@@ -28,8 +28,15 @@ int main(){
         }
 
         cin>>pwd;
+        cin.clear();
+        clearerr(stdin);
         close(fd[0]);
-        pwd += "\n";
+
+        while(pwd.length() < 16)
+            pwd += "M";
+
+        if (pwd.length() > 16)
+            pwd = pwd.substr(0, 16);
 
         cf = new CryptoFile("/opt/MAST/hashes.txt", pwd, false, success);
     } while(!success);
@@ -39,9 +46,6 @@ int main(){
         cout<<"Can't access the file containing the hashes!"<<endl;
         return 1;
     }
-
-    int mfd[2];
-    pipe(mfd);
 
     vector<int> pids;
     string hash_string;
@@ -60,16 +64,22 @@ int main(){
 
         if(hasher->verifyIntegrity(filepath, hash, success)) {
             if (filetype == "module") {
+                int mfd[2];
+                pipe(mfd);
+
                 int pid = fork();
                 if(pid>0){
                     pids.push_back(pid);
-                    write(mfd[1], pwd.c_str(), pwd.length()+1);
+                    write(mfd[1], pwd.c_str(), pwd.length());
                 }else{
                     dup2(mfd[0], STDIN_FILENO);
                     close(mfd[1]);
                     execl("/bin/bash", "bash", filepath.c_str(),NULL);
                     return 1;
                 }
+
+                close(mfd[0]);
+                close(mfd[1]);
             }
         }else{
             string command = "/opt/MAST/bin/alert_user MAST \"Corrupted file " + filepath + "!\"";
@@ -80,7 +90,5 @@ int main(){
     for(int pid:pids)
         waitpid(pid,NULL,0);
 
-    close(mfd[0]);
-    close(mfd[1]);
     return 0;
 }

@@ -29,7 +29,7 @@ detect_anomaly() {
         }' <<< "$1 $2"
 }
 
-read pwd
+read -r pwd
 
 if [ -f /var/MAST/modules/rc_out ]
 then

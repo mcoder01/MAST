@@ -130,8 +130,8 @@ CryptoFile::CryptoFile(string fname,CryptoFileMap keys,bool &success)
         this->created = false;
         
         //Searching an existing key in the keys file
-        int key = keys.read(this->filePath+"_key",e);
-        
+        string key = keys.read(this->filePath+"_key",e);
+
         if(e)
         {
             /*
@@ -381,6 +381,9 @@ bool CryptoFile::close()
 
 bool CryptoFile::read(string &data)
 {
+    if (this->nRecords == 0)
+        return false;
+
     string rec,iv,en,de;
     bool e;
 

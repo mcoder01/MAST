@@ -88,8 +88,25 @@ copy_files() {
     check_installation $?
 
     echo "Generating hashes..."
-    pwd=$(/opt/MAST/bin/password_asker)
-    mkdir -p /opt/MAST/hashes
+    while true
+    do
+        pwd=$(/opt/MAST/bin/password_asker --new)
+        if [ ${#pwd} -ge 6 ]
+        then
+            break;
+        fi
+    done
+
+    while [ ${#pwd} -lt 16 ]
+    do
+        pwd=$pwd"M"
+    done
+
+    if [ ${#pwd} -gt 16 ]
+    then
+        pwd=${pwd:0:16}
+    fi
+
     for module in $(ls "/opt/MAST/modules")
     do
         /opt/MAST/bin/hashgenerator module "/opt/MAST/modules/$module" <<< "$pwd"

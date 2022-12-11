@@ -72,7 +72,7 @@ string CryptoFileMap::read(string key, bool &success)
         if(!e)
         {
             success = false;
-            return NULL;
+            return "";
         }
 
         //Getting the key of the record
@@ -107,7 +107,7 @@ string CryptoFileMap::read(string key, bool &success)
     else
     {
         success = false;
-        return NULL;
+        return "";
     }
 
 }
