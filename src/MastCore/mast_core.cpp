@@ -10,29 +10,30 @@
 using namespace std;
 
 int main(){
-    int fd[2];
-    pipe(fd);
-    if(fork()){
-        dup2(fd[0],STDIN_FILENO);
-        close(fd[1]);
-    }else{
-        dup2(fd[1],STDOUT_FILENO);
-        close(fd[0]);
-        execl("/opt/MAST/bin/password_asker", "password_asker", NULL);
-        return 1;
-    }
-
     string pwd;
-    cin>>pwd;
-    pwd += "\n";
-    close(fd[0]);
-
-    vector<int> pids;
+    CryptoFile* cf;
     bool success = true;
-    string hash_string;
-    Hasher* hasher = new Hasher();
+    do {
+        int fd[2];
+        pipe(fd);
 
-    CryptoFile* cf = new CryptoFile("/opt/MAST/hashes.txt", pwd, false, success);
+        if(fork()){
+            dup2(fd[0],STDIN_FILENO);
+            close(fd[1]);
+        }else{
+            dup2(fd[1],STDOUT_FILENO);
+            close(fd[0]);
+            execl("/opt/MAST/bin/password_asker", "password_asker", NULL);
+            return 1;
+        }
+
+        cin>>pwd;
+        close(fd[0]);
+        pwd += "\n";
+
+        cf = new CryptoFile("/opt/MAST/hashes.txt", pwd, false, success);
+    } while(!success);
+
     success = cf->open();
     if (!success) {
         cout<<"Can't access the file containing the hashes!"<<endl;
@@ -42,6 +43,9 @@ int main(){
     int mfd[2];
     pipe(mfd);
 
+    vector<int> pids;
+    string hash_string;
+    Hasher* hasher = new Hasher();
     do {
         string line;
         success = cf->read(line);
