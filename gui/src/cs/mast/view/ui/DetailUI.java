@@ -31,6 +31,7 @@ public class DetailUI extends GenericUI {
         if (buttons == null)
             return;
 
+        LogParser.getInstance().parse();
         ArrayList<String> moduleNames = LogParser.getInstance().findModuleNames();
         GridLayout layout = (GridLayout) mainPanel.getLayout();
         int n = layout.getRows()*layout.getColumns();
@@ -77,18 +78,4 @@ public class DetailUI extends GenericUI {
             mainPanel.add(buttons[i]);
         }
     }
-
-    /*
-    public void addActions(){
-        nextWindow.addActionListener(e-> {
-            System.oust.println("Passa alla schermata principale");
-            //w.setVisible(true);
-            this.dispose();
-            if (!check.isSelected()){
-                f.delete();
-            }
-        });
-
-    }
-    */
 }

@@ -27,6 +27,7 @@ public class LogUI extends GenericUI {
 
     @Override
     public void refresh() {
+    	LogParser.getInstance().parse();
         ArrayList<Log> logs = LogParser.getInstance();
         if (logArea != null)
             for (; lastShownLog < logs.size(); lastShownLog++)
