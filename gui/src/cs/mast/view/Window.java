@@ -22,7 +22,6 @@ public class Window extends JFrame implements Runnable {
             InputStream fontStream = getClass().getClassLoader().getResourceAsStream("fonts/jack.ttf")) {
             if (iconStream != null)
                 appIcon = ImageIO.read(iconStream);
-            else System.out.println("Problema");
             if (fontStream != null)
                 font = Font.createFont(Font.TRUETYPE_FONT,fontStream);
         } catch (IOException | FontFormatException e) {

@@ -12,10 +12,8 @@ public class Main {
         String homeDir = System.getProperty("user.home");
         File txtFile = new File(homeDir + "/.wanted");
         if(txtFile.exists() && !txtFile.isDirectory()) {
-            System.out.println("NOT first time");
             window.showHome();
         } else{
-            System.out.println("first time");
             try {
                 txtFile.createNewFile();
             } catch (IOException e) {}
