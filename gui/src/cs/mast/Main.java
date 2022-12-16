@@ -19,7 +19,6 @@ public class Main {
             } catch (IOException e) {}
 
             HelpUI helpUi = new HelpUI(window, txtFile);
-            helpUi.addComponents();
             helpUi.invoke();
         }
     }

@@ -43,18 +43,16 @@ public class HelpUI extends GenericUI {
 
         JLabel tutorialDescription = new JLabel("<html>" +
                 "1. Effettua il profiling cliccando sul play e cliccando su Start Profiling <br> " +
-                "2. Clicca sull'opzione che vuoi utilizzare <br>" +
-                "3. Per maggiori informazioni clicca su HELP [Commnad+A] <br>"+
+                "2. Per maggiori clicca su 'Visualizza dettagli' e clicca nuovamente  sul modulo di cui vuoi conoscere i log "+
                 "</html>");
         tutorialDescription.setFont(window.getFont().deriveFont(11f));
         centralPanel.add(tutorialDescription);
 
-        JCheckBox check = new JCheckBox("Non visualizzare piu il messagio", true);
+        JCheckBox check = new JCheckBox("Non visualizzare piu il messaggio", true);
         lowPanel.add(check);
 
         JButton nextWindow = new JButton("Salta");
         nextWindow.addActionListener(e-> {
-            System.out.println("Passa alla schermata principale");
             if (!check.isSelected())
                 firstLaunch.delete();
             window.showHome();

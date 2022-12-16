@@ -20,12 +20,7 @@ public class HomeUI extends GenericUI {
 
     @Override
     public void addComponents(){
-        /*
-        try{
-            UIManager.setLookAndFeel(UIManager.getCrossPlatformLookAndFeelClassName());
-        }catch(Exception e){
-            e.printStackTrace();
-        }*/
+
         addPanels();
         addWidgets();
     }
