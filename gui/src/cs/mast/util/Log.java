@@ -10,9 +10,9 @@ public record Log(String timestamp, String moduleName, Status status, String mes
     }
 
     public enum Status {
-        RUNNING("In esecuzione...", "lime"),
+        RUNNING("Running...", "lime"),
         PROFILING("Profiling...", "#FFAA00"),
-        ANOMALY("Anomalia!", "red");
+        ANOMALY("Anomaly!", "red");
 
         private final String text, color;
         Status(String text, String color) {

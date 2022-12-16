@@ -31,26 +31,26 @@ public class HomeUI extends GenericUI {
         String outputText, outputColor;
         if (running) {
             if (startButton != null)
-                startButton.setText("Ferma analisi");
+                startButton.setText("Stop analysis");
 
             if (detailButton != null)
                 detailButton.setEnabled(true);
 
             if (LogParser.getInstance().foundAnyAnomaly()) {
-                outputText = "È stata rilevata qualche anomalia!";
+                outputText = "Some anomaly has been detected!";
                 outputColor = "red";
             } else {
-                outputText = "Servizio in esecuzione";
+                outputText = "Service running";
                 outputColor = "green";
             }
         } else {
             if (startButton != null)
-                startButton.setText("Inizia analisi");
+                startButton.setText("Start analysis");
 
             if (detailButton != null)
                 detailButton.setEnabled(false);
 
-            outputText = "Servizio non in esecuzione";
+            outputText = "Service not running";
             outputColor = "gray";
         }
 
@@ -78,13 +78,13 @@ public class HomeUI extends GenericUI {
         outputLabel.setFont(window.getFont().deriveFont(22f));
         highPanel.add(outputLabel);
 
-        detailButton = new JButton("Visualizza dettagli");
+        detailButton = new JButton("Show details");
         detailButton.setFont(window.getFont().deriveFont(10f));
         detailButton.setBounds(200,50,200,20);
         detailButton.setBorderPainted(false);
         detailButton.setForeground(Color.BLUE);
         detailButton.setFocusPainted(false);
-        detailButton.setToolTipText("Clicca qui per iniziare visualizzare tutti i dettagli");
+        detailButton.setToolTipText("Click here to view all the details");
         detailButton.setEnabled(false);
         lowPanel.add(detailButton);
 

@@ -72,7 +72,7 @@ public class DetailUI extends GenericUI {
         for(int i=0;i<n;i++){
             buttons[i] = new JButton();
             buttons[i].setFont(window.getFont().deriveFont(16f));
-            buttons[i].setToolTipText("Clicca qui per visualizzare i log");
+            buttons[i].setToolTipText("Click here to view the logs");
             final int index = i;
             buttons[i].addActionListener(l -> window.showLogs(moduleNames.get(index)));
             mainPanel.add(buttons[i]);
