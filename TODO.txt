@@ -1,4 +1,0 @@
-- Risolvere glitch della pagina di help della gui
-- Ricreare schema progetto
-- Fare presentazione power point
-- Fare relazione
