@@ -24,6 +24,10 @@ remove_data() {
   if [ "$resp" == "S" ] || [ "$resp" ==  "s" ]
   then
     rm -rf /var/MAST
+    for userdir in $(ls /home)
+    do
+      rm -f /home/$userdir/.wanted 2> /dev/null
+    done
   fi
 }
 
