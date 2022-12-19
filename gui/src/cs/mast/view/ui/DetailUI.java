@@ -21,7 +21,7 @@ public class DetailUI extends GenericUI {
     public void addComponents() {
         mainPanel = new JPanel();
         mainPanel.setLayout(new GridLayout(2,2));
-        mainPanel.setBounds(0, 30, 600, 540);
+        mainPanel.setBounds(0, 40, 600, 532);
         add(mainPanel);
         addBackButton();
     }

@@ -22,7 +22,7 @@ public abstract class GenericUI extends JPanel {
 
     protected void addBackButton() {
         backButton = new JButton("←");
-        backButton.setBounds(0, 0, 50, 30);
+        backButton.setBounds(5, 5, 50, 30);
         add(backButton);
     }
 
