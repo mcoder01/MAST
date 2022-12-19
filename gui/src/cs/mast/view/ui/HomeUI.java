@@ -37,7 +37,7 @@ public class HomeUI extends GenericUI {
                 detailButton.setEnabled(true);
 
             if (LogParser.getInstance().foundAnyAnomaly()) {
-                outputText = "Some anomaly has been detected!";
+                outputText = "Some anomalies have been detected!";
                 outputColor = "red";
             } else {
                 outputText = "Service running";
@@ -92,11 +92,8 @@ public class HomeUI extends GenericUI {
         startButton.setFont(window.getFont().deriveFont(12f));
         startButton.setBounds(200,0,200,20);
         startButton.addActionListener(e -> {
-            //String[] comands = {getClass().getResource("mast.service"};
             if(!running){
                 ProcessBuilder pb = new ProcessBuilder("systemctl", "enable", "--now", "mast.service");
-                //ProcessBuilder pb = new ProcessBuilder("echo","ciao");
-                //pb.inheritIO();
                 try {
                     Process p = pb.start();
                     int exitStatus = p.waitFor();
@@ -106,7 +103,6 @@ public class HomeUI extends GenericUI {
                 }
             }else{
                 ProcessBuilder pb = new ProcessBuilder("systemctl", "stop", "mast.service");
-                //ProcessBuilder pb = new ProcessBuilder("echo","ciao");
                 pb.inheritIO();
                 try {
                     Process p = pb.start();

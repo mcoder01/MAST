@@ -12,6 +12,7 @@ public class LogUI extends GenericUI {
     private JTextArea logArea;
     private int lastShownLog;
 
+
     public LogUI(Window window, String moduleName) {
         super(window);
         this.moduleName = moduleName;
@@ -21,6 +22,7 @@ public class LogUI extends GenericUI {
 
     @Override
     public void addComponents() {
+
         addBackButton();
         addLogs();
     }
@@ -42,14 +44,17 @@ public class LogUI extends GenericUI {
 
     private void addLogs() {
         //Set name
+
         JLabel label = new JLabel("Logs from: " + moduleName);
         label.setBounds(0, 40, 600, 15);
         add(label);
-
         logArea = new JTextArea();
-        logArea.setBounds(0, 60, 600, 550);
         logArea.setEditable(false);
-        add(logArea);
+        JScrollPane scrollPane = new JScrollPane(logArea);
+        scrollPane.setBounds(0, 60, 600, 513);
+        scrollPane.setVerticalScrollBarPolicy(ScrollPaneConstants.VERTICAL_SCROLLBAR_AS_NEEDED);
+        scrollPane.setHorizontalScrollBarPolicy(ScrollPaneConstants.HORIZONTAL_SCROLLBAR_AS_NEEDED);
+        add(scrollPane);
     }
 
     private void showLog(Log log) {

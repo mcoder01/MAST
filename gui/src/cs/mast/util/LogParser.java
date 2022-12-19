@@ -34,6 +34,7 @@ public class LogParser extends ArrayList<Log> {
                 String timestamp = lineInfo[0];
                 String moduleName = lineInfo[1];
                 Log.Status status = Log.Status.valueOf(lineInfo[2].toUpperCase());
+
                 String message = "";
                 if (lineInfo.length == 4)
                     message = lineInfo[3];
@@ -65,16 +66,22 @@ public class LogParser extends ArrayList<Log> {
     }
 
     public Log.Status getModuleStatus(String moduleName) {
-        for (int i = size()-1; i >= 0; i--) {
-            Log log = get(i);
-            if (log.moduleName().equals(moduleName)) {
-                if (log.status() == Log.Status.RUNNING && i > 0)
-                    continue;
-                return log.status();
-            }
+        ArrayList<Log> logs = findLogsByModuleName(moduleName);
+        for (int i = logs.size()-1; i >= 0; i--) {
+            Log log = logs.get(i);
+            if (log.status() == Log.Status.RUNNING && i > 0)
+                continue;
+            return log.status();
         }
-
         return null;
+    }
+
+    private ArrayList<Log> findLogsByModuleName(String moduleName){
+        ArrayList<Log> logs = new ArrayList<>();
+        for(Log l:this)
+            if (l.moduleName().equals(moduleName))
+                logs.add(l);
+        return logs;
     }
 
     public ArrayList<String> findModuleNames(){
